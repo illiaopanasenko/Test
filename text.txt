@@ -1,7 +1,18 @@
-SELECT [a].[Id], [a].[AccessFailedCount], [a].[AccountNumber], [a].[Address], [a].[CheckrCandidateId], [a].[CheckrStatus], [a].[CompanyId], [a].[ConcurrencyStamp], [a].[CreatedDate], [a].[DefaultActive], [a].[DefaultMeasurementSystem], [a].[DeletedDate], [a].[DriverStatus], [a].[Email], [a].[EmailConfirmed], [a].[FullName], [a].[Latitude], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[Longitude], [a].[MobileRefreshToken], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[OldPassword], [a].[OldUserId], [a].[PasswordHash], [a].[PaymentMethod], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[ReferralAccountId], [a].[ReferralCode], [a].[RefreshToken], [a].[SecurityStamp], [a].[StripeEntityId], [a].[Twillio], [a].[TwoFactorEnabled], [a].[UpdatedDate], [a].[UserName], [a].[UserStatus], [a].[ZenDeskId]
+SELECT [a].[Id], [a].[FullName], (
+    SELECT TOP(1) [a5].[Name]
+    FROM [AspNetUserRoles] AS [a4]
+    INNER JOIN [AspNetRoles] AS [a5] ON [a4].[RoleId] = [a5].[Id]
+    WHERE [a].[Id] = [a4].[UserId]) AS [Role], [a].[CompanyId]
 FROM [AspNetUsers] AS [a]
-WHERE (([a].[DeletedDate] IS NULL) AND ([a].[UserStatus] = 0)) AND ((
+WHERE (([a].[DeletedDate] IS NULL) AND ([a].[UserStatus] = 0)) AND ((((
     SELECT TOP(1) [a1].[Name]
     FROM [AspNetUserRoles] AS [a0]
     INNER JOIN [AspNetRoles] AS [a1] ON [a0].[RoleId] = [a1].[Id]
-    WHERE [a].[Id] = [a0].[UserId]) = N'CompanyCustomer')
+    WHERE [a].[Id] = [a0].[UserId]) = N'CompanyCustomer') AND ([a].[CompanyId] = @__customerCompanyId_0)) OR (((
+    SELECT TOP(1) [a3].[Name]
+    FROM [AspNetUserRoles] AS [a2]
+    INNER JOIN [AspNetRoles] AS [a3] ON [a2].[RoleId] = [a3].[Id]
+    WHERE [a].[Id] = [a2].[UserId]) = N'OutsideCustomer') AND EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE (([o].[DeletedDate] IS NULL) AND ([a].[Id] = [o].[AccountId])) AND ([o].[CompanyId] = @__customerCompanyId_0))))
